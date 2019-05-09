@@ -1,0 +1,14 @@
+{
+  "name": "dorgdao",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@daostack/migration": "0.0.1-rc.16-v1"
+  }
+}
