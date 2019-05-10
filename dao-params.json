@@ -22,11 +22,11 @@
     {
       "boostedVotePeriodLimit": 129600,
       "daoBountyConst": 75,
-      "minimumDaoBounty": 100,
+      "minimumDaoBountyGWei": 100,
       "queuedVotePeriodLimit": 1800,
       "queuedVoteRequiredPercentage": 50,
       "preBoostedVotePeriodLimit": 1814400,
-      "proposingRepReward": 5,
+      "proposingRepRewardGwei": 5,
       "quietEndingPeriod": 86400,
       "thresholdConst": 2000,
       "voteOnBehalf": "0x0000000000000000000000000000000000000000",
@@ -43,7 +43,7 @@
   },
   "unregisterOwner": true,
   "useUController": true,
-  "useDaoCreator": true,
+  "useDaoCreator": false,
   "founders": [
     {
       "address": "0xEB0C4F040FF0e2278bB2c14B7CC9c357467C83e3",
