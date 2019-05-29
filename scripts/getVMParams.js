@@ -1,10 +1,10 @@
 // Returns the Parameters struct that's associated with the given params hash
 const Utils = require("./utils");
-const getParamsHashes = require("./getParamsHashes").default;
+const getVMParamsHashes = require("./getVMParamsHashes").default;
 
-async function getParams(paramHashes = undefined, consoleOut = true) {
+async function getVMParams(paramHashes = undefined, consoleOut = true) {
   if (paramHashes === undefined) {
-    paramHashes = await getParamsHashes(false);
+    paramHashes = await getVMParamsHashes(false);
   }
 
   const genesisProtocol = await Utils.getGenesisProtocolContract();
@@ -29,10 +29,10 @@ async function getParams(paramHashes = undefined, consoleOut = true) {
 }
 
 if (require.main === module) {
-  getParams()
+  getVMParams()
     .catch((error) => {
       Utils.logError(`Error: ${error.message}`);
     });
 } else {
-  module.exports.default = getParams;
+  module.exports.default = getVMParams;
 }

@@ -1,5 +1,12 @@
 {
-  "paramHashes": [
+  "vmParamHashes": [
     "0xde4f0f4f78d4b45d70edb6d36b5883cb501e32dd8e5a7804ee58a0abe12bdc5f"
-  ]
+  ],
+  "schemeParamHashes": {
+    "ContributionReward": "0x1e365e774b2684a3d7a00980d56dcce2c0500a662751dd7be0a4168484abea4a",
+    "GenericScheme": "0x3d0fa28cde4321545adc74dc08eac1632c75df9046ba2bae0affcba65bca1391",
+    "SchemeRegistrar": "0x574cecc2d289b9f43272079c712aaf091df1b305b26fa0d7d8f6da8032996ba7",
+    "GlobalConstraintRegistrar": "0x1e365e774b2684a3d7a00980d56dcce2c0500a662751dd7be0a4168484abea4a",
+    "UpgradeScheme": "0x1e365e774b2684a3d7a00980d56dcce2c0500a662751dd7be0a4168484abea4a"
+  }
 }

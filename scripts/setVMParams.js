@@ -1,7 +1,7 @@
 // Call GenesisProtocol.setParameters for each parameter set in the list.
 const Utils = require("./utils");
-const getParamsHashes = require("./getParamsHashes").default;
-const getParams = require("./getParams").default;
+const getVMParamsHashes = require("./getVMParamsHashes").default;
+const getVMParams = require("./getVMParams").default;
 
 // Returns true if the parameters are already set in the contract
 function isSet(params) {
@@ -15,13 +15,13 @@ function isSet(params) {
   return false;
 }
 
-async function setParams() {
-  const paramArgs = Utils.getParamArgs();
-  const paramHashes = await getParamsHashes(false);
-  const params = await getParams(paramHashes, false);
+async function setVMParams() {
+  const paramArgs = Utils.getVMParamArgs();
+  const paramHashes = await getVMParamsHashes(false);
+  const params = await getVMParams(paramHashes, false);
   const genesisProtocol = await Utils.getGenesisProtocolContract();
 
-  // post a transaction to add it
+  // Add param hashes to GenesisProtocol
   for (let i = 0; i < paramArgs.length; ++i) {
     if (isSet(params[i])) {
       console.log("Parameters Already Set");
@@ -40,10 +40,10 @@ async function setParams() {
 }
 
 if (require.main === module) {
-  setParams()
+  setVMParams()
     .catch((error) => {
       Utils.logError(`Error: ${error.message}`);
     });
 } else {
-  module.exports.default = setParams;
+  module.exports.default = setVMParams;
 }
