@@ -3,8 +3,9 @@ const Web3 = require("web3");
 const Web3Node = "https://mainnet.infura.io/";
 const web3 = new Web3(Web3Node);
 const GenesisProtocol = require("@daostack/infra/build/contracts/GenesisProtocol.json");
-const GenesisProtocolAddress = require("@daostack/migration/migration.json")["mainnet"]["base"]["GenesisProtocol"];
+const GenesisProtocolAddress = require("../dao-deployment.json")["mainnet"]["base"]["GenesisProtocol"];
 const DAOParams = require("../dao-params.json");
+const getVMParamsHashes = require("./getVMParamsHashes").default;
 const spinner = require("ora")();
 
 // setup default account using the PRIVATE_KEY env var
@@ -14,29 +15,93 @@ const account = web3.eth.accounts.privateKeyToAccount(
 web3.eth.accounts.wallet.add(account);
 web3.eth.defaultAccount = account.address;
 
+function startTx(message) {
+  spinner.start(message);
+}
+
+async function sendTx(transaction) {
+  const from = web3.eth.defaultAccount;
+  return await transaction.send({
+    from,
+    gas: await transaction.estimateGas({ from }) * 2
+  });
+}
+
+async function logTx(tx, message) {
+  const { transactionHash, gasUsed } = tx;
+  const { gasPrice } = await web3.eth.getTransaction(transactionHash);
+  const txCost = web3.utils.fromWei((gasUsed * gasPrice).toString(), 'ether');
+  spinner.info(`${transactionHash} | ${Number(txCost).toFixed(5)} ETH | ${message}`);
+}
+
+function logError(message) {
+  spinner.fail(message);
+}
+
 async function getGenesisProtocolContract() {
   return await new web3.eth.Contract(
     GenesisProtocol.abi, GenesisProtocolAddress
   );
 }
 
-const paramNameToIndex = {
-  "queuedVoteRequiredPercentage": 0,
-  "queuedVotePeriodLimit": 1,
-  "boostedVotePeriodLimit": 2,
-  "preBoostedVotePeriodLimit": 3,
-  "thresholdConst": 4,
-  "quietEndingPeriod": 5,
-  "proposingRepReward": 6,
-  "proposingRepRewardGwei": 6,
-  "votersReputationLossRatio": 7,
-  "minimumDaoBounty": 8,
-  "minimumDaoBountyGWei": 8,
-  "daoBountyConst": 9,
-  "activationTime": 10
-};
+async function getSchemeContracts() {
+  const schemeNames = [
+    "ContributionReward",
+    "GenericScheme",
+    "SchemeRegistrar",
+    "GlobalConstraintRegistrar",
+    "UpgradeScheme"
+  ];
+  const schemeContracts = [];
+  const vmParamsHashes = await getVMParamsHashes(false);
 
-function getParamArgs() {
+  for (let i = 0; i < schemeNames.length; ++i) {
+    const name = schemeNames[i];
+    const schemeParams = DAOParams[name];
+    if (schemeParams === undefined) {
+      continue;
+    }
+
+    let vmParamsIndex = schemeParams["voteParams"];
+    if (vmParamsIndex === undefined) {
+      vmParamsIndex = 0;
+    }
+
+    const hash = vmParamsHashes[vmParamsIndex];
+
+    const abi = require(`@daostack/arc/build/contracts/${name}.json`);
+    const address = require("../dao-deployment.json")["mainnet"]["base"][name];
+    const contract = await new web3.eth.Contract(abi, address);
+
+    schemeContracts.push({
+      name,
+      vmParams: vmParamsIndex,
+      vmParamsHash: hash,
+      vmAddress: GenesisProtocolAddress,
+      schemeAddress: address,
+      contract
+    });
+  }
+
+  return schemeContracts;
+}
+
+function getVMParamArgs() {
+  const paramNameToIndex = {
+    "queuedVoteRequiredPercentage": 0,
+    "queuedVotePeriodLimit": 1,
+    "boostedVotePeriodLimit": 2,
+    "preBoostedVotePeriodLimit": 3,
+    "thresholdConst": 4,
+    "quietEndingPeriod": 5,
+    "proposingRepReward": 6,
+    "proposingRepRewardGwei": 6,
+    "votersReputationLossRatio": 7,
+    "minimumDaoBounty": 8,
+    "minimumDaoBountyGWei": 8,
+    "daoBountyConst": 9,
+    "activationTime": 10
+  };
   const vmsParams = DAOParams["VotingMachinesParams"];
   const paramArgs = [];
 
@@ -70,34 +135,14 @@ function getParamArgs() {
   return paramArgs;
 }
 
-function startTx(message) {
-  spinner.start(message);
-}
-
-async function sendTx(transaction) {
-  const from = web3.eth.defaultAccount;
-  return await transaction.send({
-    from,
-    gas: await transaction.estimateGas({ from }) * 2
-  });
-}
-
-async function logTx(tx, message) {
-  const { transactionHash, gasUsed } = tx;
-  const { gasPrice } = await web3.eth.getTransaction(transactionHash);
-  const txCost = web3.utils.fromWei((gasUsed * gasPrice).toString(), 'ether');
-  spinner.info(`${transactionHash} | ${Number(txCost).toFixed(5)} ETH | ${message}`);
-}
-
-function logError(message) {
-  spinner.fail(message);
-}
-
 module.exports = {
   getGenesisProtocolContract,
-  getParamArgs,
+  getVMParamArgs,
+  getSchemeContracts,
   startTx,
   sendTx,
   logTx,
-  logError
+  logError,
+  // TODO: remove
+  web3
 };
