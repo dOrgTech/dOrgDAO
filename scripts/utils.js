@@ -5,7 +5,6 @@ const web3 = new Web3(Web3Node);
 const GenesisProtocol = require("@daostack/infra/build/contracts/GenesisProtocol.json");
 const GenesisProtocolAddress = require("../dao-deployment.json")["mainnet"]["base"]["GenesisProtocol"];
 const DAOParams = require("../dao-params.json");
-const getVMParamsHashes = require("./getVMParamsHashes").default;
 const spinner = require("ora")();
 
 // setup default account using the PRIVATE_KEY env var
@@ -53,6 +52,7 @@ async function getSchemeContracts() {
     "UpgradeScheme"
   ];
   const schemeContracts = [];
+  const getVMParamsHashes = require("./getVMParamsHashes").default;
   const vmParamsHashes = await getVMParamsHashes(false);
 
   for (let i = 0; i < schemeNames.length; ++i) {
