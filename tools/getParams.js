@@ -1,0 +1,1 @@
+// TODO: get params from params hash & voting machine contract

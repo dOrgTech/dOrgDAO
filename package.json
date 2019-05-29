@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@daostack/migration": "0.0.1-rc.16-v1"
+    "@daostack/migration": "0.0.1-rc.16-v1",
+    "web3": "1.0.0-beta.37"
   }
 }
