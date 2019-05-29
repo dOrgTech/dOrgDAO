@@ -1,22 +1,57 @@
-// TODO: Go through each scheme, call setParams(vmHash, vmAddress)
+// Set the scheme params (with the voting machine's params hash and other information)
 const Utils = require("./utils");
+const getVMParamsHashes = require("./getVMParamsHashes").default;
 
 async function setSchemeParams() {
-  const schemes = await Utils.getSchemeContracts();
+  const vmParamsHashes = await getVMParamsHashes(false);
+  const schemeNames = [
+    "ContributionReward",
+    "GenericScheme",
+    "SchemeRegistrar",
+    "GlobalConstraintRegistrar",
+    "UpgradeScheme"
+  ];
 
-  // Testing
-  const UControllerAddress = require("../dao-deployment.json")["mainnet"]["base"]["UController"];
-  const AvatarAddress = require("../dao-deployment.json")["mainnet"]["dao"]["Avatar"];
-  const UController = require("@daostack/arc/build/contracts/UController.json");
-  const uController = await new Utils.web3.eth.Contract(UController.abi, UControllerAddress);
+  // For each scheme
+  for (let i = 0; i < schemeNames.length; ++i) {
+    const name = schemeNames[i];
 
-  for (let i = 0; i < schemes.length; ++i) {
-    const result = await uController.methods.getSchemeParameters(
-      schemes[i].schemeAddress, AvatarAddress
+    // Get the params for the scheme
+    const schemeParams = Utils.DAOParams[name];
+    if (schemeParams === undefined) {
+      continue;
+    }
+
+    // Get the voting machine params for the scheme
+    let vmParamsIndex = schemeParams["voteParams"];
+    if (vmParamsIndex === undefined) {
+      vmParamsIndex = 0;
+    }
+
+    // Get the params hash for the voting machine this scheme is using
+    const vmParamsHash = vmParamsHashes[vmParamsIndex];
+
+    // Create wrapper for scheme contract
+    const abi = require(`@daostack/arc/build/contracts/${name}.json`);
+    const address = require("../dao-deployment.json")["mainnet"]["base"][name];
+    const contract = await new Utils.web3.eth.Contract(abi.abi, address);
+    let args = [vmParamsHash, Utils.GenesisProtocolAddress];
+
+    if (name === "GenericScheme") {
+      args.push(schemeParams["targetContract"]);
+    } else if (name === "SchemeRegistrar") {
+      args = [vmParamsHash, ...args];
+    }
+
+    const hash = await contract.methods.getParametersHash(...args).call();
+
+    Utils.startTx(`Calling setParameters on ${name}\nArguments: [${args}]\nHash: ${hash}`);
+
+    const tx = await Utils.sendTx(
+      contract.methods.setParameters(...args)
     );
 
-    console.log(schemes[i].name);
-    console.log(result);
+    await Utils.logTx(tx, `setParameters Finished. Hash: ${hash}`);
   }
 }
 

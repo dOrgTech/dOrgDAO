@@ -43,49 +43,6 @@ async function getGenesisProtocolContract() {
   );
 }
 
-async function getSchemeContracts() {
-  const schemeNames = [
-    "ContributionReward",
-    "GenericScheme",
-    "SchemeRegistrar",
-    "GlobalConstraintRegistrar",
-    "UpgradeScheme"
-  ];
-  const schemeContracts = [];
-  const getVMParamsHashes = require("./getVMParamsHashes").default;
-  const vmParamsHashes = await getVMParamsHashes(false);
-
-  for (let i = 0; i < schemeNames.length; ++i) {
-    const name = schemeNames[i];
-    const schemeParams = DAOParams[name];
-    if (schemeParams === undefined) {
-      continue;
-    }
-
-    let vmParamsIndex = schemeParams["voteParams"];
-    if (vmParamsIndex === undefined) {
-      vmParamsIndex = 0;
-    }
-
-    const hash = vmParamsHashes[vmParamsIndex];
-
-    const abi = require(`@daostack/arc/build/contracts/${name}.json`);
-    const address = require("../dao-deployment.json")["mainnet"]["base"][name];
-    const contract = await new web3.eth.Contract(abi, address);
-
-    schemeContracts.push({
-      name,
-      vmParams: vmParamsIndex,
-      vmParamsHash: hash,
-      vmAddress: GenesisProtocolAddress,
-      schemeAddress: address,
-      contract
-    });
-  }
-
-  return schemeContracts;
-}
-
 function getVMParamArgs() {
   const paramNameToIndex = {
     "queuedVoteRequiredPercentage": 0,
@@ -136,13 +93,13 @@ function getVMParamArgs() {
 }
 
 module.exports = {
+  GenesisProtocolAddress,
+  DAOParams,
   getGenesisProtocolContract,
   getVMParamArgs,
-  getSchemeContracts,
   startTx,
   sendTx,
   logTx,
   logError,
-  // TODO: remove
   web3
 };
