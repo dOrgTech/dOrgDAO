@@ -7,7 +7,8 @@ const getParams = require("./getParams").default;
 function isSet(params) {
   const values = Object.values(params);
   for (let i = 0; i < values.length; ++i) {
-    if (values[i] !== "0" || values[i] !== "0x0000000000000000000000000000000000000000") {
+    if (values[i] !== "0" && values[i] !== 0 &&
+        values[i] !== "0x0000000000000000000000000000000000000000") {
       return true;
     }
   }

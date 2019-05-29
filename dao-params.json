@@ -21,16 +21,16 @@
   "VotingMachinesParams": [
     {
       "boostedVotePeriodLimit": 129600,
-      "daoBountyConst": 75,
-      "minimumDaoBountyGWei": 100,
-      "queuedVotePeriodLimit": 1800,
+      "daoBountyConst": 10,
+      "minimumDaoBountyGWei": 50000000000,
+      "queuedVotePeriodLimit": 604800,
       "queuedVoteRequiredPercentage": 50,
-      "preBoostedVotePeriodLimit": 1814400,
-      "proposingRepRewardGwei": 5,
+      "preBoostedVotePeriodLimit": 43200,
+      "proposingRepRewardGwei": 0,
       "quietEndingPeriod": 86400,
-      "thresholdConst": 2000,
+      "thresholdConst": 1200,
       "voteOnBehalf": "0x0000000000000000000000000000000000000000",
-      "votersReputationLossRatio": 1,
+      "votersReputationLossRatio": 0,
       "activationTime": 0
     }
   ],

@@ -2,7 +2,7 @@
 // "VotingMachineParams" array in the dao-params.json config
 const Utils = require("./utils");
 
-async function getParamsHash(consoleOut = true) {
+async function getParamsHashes(consoleOut = true) {
   const paramArgs = Utils.getParamArgs();
   const genesisProtocol = await Utils.getGenesisProtocolContract();
   const paramHashes = [];
@@ -22,10 +22,10 @@ async function getParamsHash(consoleOut = true) {
 }
 
 if (require.main === module) {
-  getParamsHash()
+  getParamsHashes()
     .catch((error) => {
       Utils.logError(`Error: ${error.message}`);
     });
 } else {
-  module.exports.default = getParamsHash;
+  module.exports.default = getParamsHashes;
 }
